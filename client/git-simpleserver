@@ -1,0 +1,398 @@
+#!/bin/sh
+
+#. "$(git --exec-path)/git-sh-setup"
+
+set -euf #o pipefail
+
+export GIT_SS_REMOTE_VERSION="1"
+
+repo_list() {
+	local CMD="repo-list"
+	local OUT
+	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
+	echo "$OUT"
+}
+repo_info() {
+	set +u
+	if [ "$1" = "--help" ]; then
+		repo_info_help
+		exit 0
+	fi
+	if [ -z "$*" ]; then
+		repo_info_help
+		exit 0
+	fi
+	set -u
+
+	local REPO="$*"
+	local CMD="repo-info \"$REPO\""
+	local OUT
+	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
+
+	echo "$OUT"
+}
+repo_info_help() {
+	echo "usage: git simpleserver repo info <repo name>"
+}
+repo_create() {
+	set +u
+	local INTERACTIVE_MODE=true
+	case "$1" in
+	"--help")
+		repo_create_help
+		exit 0
+	;;
+	"-y")
+		# Non-interactive mode
+		INTERACTIVE_MODE=false
+		shift
+	;;
+	esac
+	if [ -z "$*" ]; then
+		repo_create_help
+		exit 0
+	fi
+	set -u
+
+	local NEW_REPO="$*"
+	if [ "$INTERACTIVE_MODE" = true ]; then
+		confirm "Do you want to create repo '$NEW_REPO'?"
+	fi
+	local CMD="repo-create \"$NEW_REPO\""
+	local OUT
+	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
+
+	echo "Repo '$NEW_REPO' was created successfully. Track it as remote 'origin' via:"
+	echo " $ git remote add origin $LOGIN:$OUT"
+	echo " $ git remote set-url origin $LOGIN:$OUT"
+}
+repo_create_help() {
+	echo "usage: git simpleserver repo create <repo name>"
+}
+repo_delete() {
+	set +u
+	local INTERACTIVE_MODE=true
+	case "$1" in
+	"--help")
+		repo_delete_help
+		exit 0
+	;;
+	"-y")
+		# Non-interactive mode
+		INTERACTIVE_MODE=false
+		shift
+	;;
+	esac
+	if [ -z "$*" ]; then
+		repo_delete_help
+		exit 0
+	fi
+	set -u
+
+	local REPO_TO_DELETE="$*"
+	if [ "$INTERACTIVE_MODE" = true ]; then
+		confirm "Do you really want to delete repo '$REPO_TO_DELETE'?"
+	fi
+	local CMD="repo-delete \"$REPO_TO_DELETE\""
+	local OUT
+	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
+
+	echo "Repo '$REPO_TO_DELETE' was deleted successfully"
+}
+repo_delete_help() {
+	echo "usage: git simpleserver repo delete <repo name>"
+}
+repo_access() {
+	set +u
+	case "$1" in
+	"--help")
+		repo_access_help
+		exit 0
+	;;
+	esac
+	if [ $# -ne 3 ]; then
+		repo_access_help
+		exit 0
+	fi
+	set -u
+
+	local REPO="$1"
+	local ACCESS_MODE="$2"
+	local USER="$3"
+	local CMD="repo-access \"$REPO\" \"$ACCESS_MODE\" \"$USER\""
+	local OUT
+	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
+
+	echo "$OUT"
+}
+repo_access_help() {
+	echo "usage: git simpleserver repo access <repo name> <-rw | -r | -rm> <user name>"
+}
+repo_help() {
+	echo "usage: git simpleserver repo <subcommand>"
+	echo
+	echo "Available subcommands are:"
+	echo "   list      List existing repositories."
+	echo "   info      Show info of named repository."
+	echo "   create    Create a new named repository."
+	echo "   delete    Delete a new named repository."
+	echo "   access    Manage access to a named repository."
+	echo
+	echo "Try 'git simpleserver repo <subcommand> --help' for details."
+}
+
+user_list() {
+	set +u
+	local CMD="user-list '$1'"
+	set -u
+
+	local OUT
+	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
+
+	echo "$OUT"
+}
+user_info() {
+	set +u
+	if [ "$1" = "--help" ]; then
+		user_info_help
+		exit 0
+	fi
+	if [ -z "$1" ]; then
+		user_info_help
+		exit 0
+	fi
+	set -u
+
+	local USER="$1"
+	local CMD="user-info \"$USER\""
+	local OUT
+	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
+
+	echo "$OUT"
+}
+user_info_help() {
+	echo "usage: git simpleserver user info <user name>"
+}
+user_create() {
+	set +u
+	if [ "$1" = "--help" ]; then
+		user_create_help
+		exit 0
+	fi
+	if [ -z "$1" ]; then
+		user_create_help
+		exit 0
+	fi
+	set -u
+
+	local NEW_USER="$1"
+	echo "Please paste the SSH public key for user '$NEW_USER'. Confirm by pressing the 'Enter' key."
+	local PUBLIC_KEY=$(do_read)
+	local CMD="user-create \"$NEW_USER\" \"$PUBLIC_KEY\""
+	local OUT
+	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
+
+	echo "User '$NEW_USER' was created successfully"
+}
+user_create_help() {
+	echo "usage: git simpleserver user create <user name>"
+}
+user_delete() {
+	set +u
+	if [ "$1" = "--help" ]; then
+		repo_delete_help
+		exit 0
+	fi
+	if [ -z "$1" ]; then
+		repo_create_help
+		exit 0
+	fi
+	set -u
+
+	local USER_TO_DELETE="$1"
+	confirm "Do you really want to delete user '$USER_TO_DELETE'?"
+	local CMD="user-delete \"$USER_TO_DELETE\""
+	local OUT
+	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
+
+	echo "User '$USER_TO_DELETE' was deleted successfully"
+}
+user_delete_help() {
+	echo "usage: git simpleserver user delete <user name>"
+}
+user_help() {
+	echo "usage: git simpleserver user <subcommand>"
+	echo
+	echo "Available subcommands are:"
+	echo "   list   [-v] List existing users."
+	echo "   info        Show info of named user."
+	echo "   create      Create a new named user."
+	echo "   delete      Delete a new named user."
+	echo
+	echo "Try 'git simpleserver user <subcommand> --help' for details."
+}
+
+do_read() {
+	# TODO(leon): Hack to print and return something
+	printf "%s " ">" > /dev/null >&2
+	read -r ANSWER
+	echo "$ANSWER"
+}
+
+confirm() {
+	MSG="$1"
+	PROMPT="Please answer with YES or NO"
+	# POSIX shell's `echo` has no support for flags
+	echo "$MSG $PROMPT"
+	local ANSWER=$(do_read)
+	case "$ANSWER" in
+	"YES")
+		return 0
+	;;
+	"NO")
+		exit 1
+	;;
+	*)
+		echo "$PROMPT, you typed: $ANSWER"
+		exit 1
+	;;
+	esac
+}
+
+exec_ssh_cmd() {
+	local CMD="$1"
+	local OUT
+	local EXIT_CODE
+	set +e
+	OUT=$(ssh -o SendEnv=GIT_SS_REMOTE_VERSION -p "$PORT" "$LOGIN" "$CMD" 2>&1)
+	EXIT_CODE=$?
+	set -e
+	if [ $EXIT_CODE -ne 0 ]; then
+		echo "Error! $OUT"
+		exit $EXIT_CODE
+	fi
+	echo "$OUT"
+}
+
+main() {
+	if [ $# -lt 2 ]; then
+		usage
+	fi
+
+	CMD="usage"
+
+	local PARAM1="$1"
+	shift
+	local PARAM2="$1"
+	shift
+
+	case "$PARAM1" in
+	"repo" | "repos")
+		case "$PARAM2" in
+		"list" | "ls")
+			CMD="repo_list"
+		;;
+		"info")
+			CMD="repo_info"
+		;;
+		"create" | "add" | "new")
+			CMD="repo_create"
+		;;
+		"delete" | "remove" | "rm")
+			CMD="repo_delete"
+		;;
+		"access")
+			CMD="repo_access"
+		;;
+		*)
+			CMD="repo_help"
+		;;
+		esac
+	;;
+	"user" | "users")
+		case "$PARAM2" in
+		"list" | "ls")
+			CMD="user_list"
+		;;
+		"info")
+			CMD="user_info"
+		;;
+		"create" | "add" | "new")
+			CMD="user_create"
+		;;
+		"delete" | "remove" | "rm")
+			CMD="user_delete"
+		;;
+		*)
+			CMD="user_help"
+		;;
+		esac
+	;;
+	esac
+
+	eval "$CMD" "$@"
+}
+
+usage() {
+	echo "usage: git simpleserver <subcommand>"
+	echo
+	echo "Available subcommands are:"
+	echo "   repo      Create, list and modify repositories."
+	echo "   user      Create, list and modify users (admin only)."
+	echo
+	echo "Try 'git simpleserver <subcommand> --help' for details."
+	exit 1
+}
+
+# Stolen from https://gist.github.com/pkuczynski/8665367
+parse_yaml() {
+	local prefix="$2"
+	local s
+	local w
+	local fs
+	s='[[:space:]]*'
+	w='[a-zA-Z0-9_]*'
+	fs="$(echo @|tr @ '\034')"
+	sed -ne "s|^\($s\)\($w\)$s:$s\"\(.*\)\"$s\$|\1$fs\2$fs\3|p" \
+		-e "s|^\($s\)\($w\)$s:$s\(.*\)$s\$|\1$fs\2$fs\3|p" "$1" |
+	awk -F"$fs" '{
+	indent = length($1)/2;
+	vname[indent] = $2;
+	for (i in vname) {if (i > indent) {delete vname[i]}}
+		if (length($3) > 0) {
+			vn=""; for (i=0; i<indent; i++) {vn=(vn)(vname[i])("_")}
+			printf("local %s%s%s=(\"%s\")\n", "'"$prefix"'", vn, $2, $3);
+		}
+	}'
+}
+
+prepare_config() {
+	eval $(parse_yaml "$1" "config_")
+
+	# Make sure to not use 'local' here
+	USER="$config_default_ssh_user"
+	SERVER="$config_default_ssh_server"
+	LOGIN="$USER@$SERVER"
+	set +u
+	PORT="$config_default_ssh_port"
+	if [ -z "$PORT" ]; then
+		PORT="22"
+	fi
+	set -u
+}
+
+CONFIG_FILE_PATH="$HOME/.git-simpleserver/config.yaml"
+case "$1" in
+"--config" | "-c")
+	shift
+	CONFIG_FILE_PATH="$1"
+	shift
+;;
+esac
+if [ ! -f "$CONFIG_FILE_PATH" ]; then
+	echo "Config file '$CONFIG_FILE_PATH' does not exist"
+	exit 1
+fi
+prepare_config "$CONFIG_FILE_PATH"
+
+main "$@"

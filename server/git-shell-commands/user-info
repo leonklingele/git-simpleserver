@@ -1,0 +1,36 @@
+#!/bin/sh
+
+USER="$*"
+
+set -euf #o pipefail
+cd "$REPOS_PATH"
+
+_list_access() {
+	local NAMED_ACCESS_MODE="$1"
+	local FILE_NAME
+	case "$NAMED_ACCESS_MODE" in
+	"read")
+		FILE_NAME="$FILE_NAME_ACCESS_READ"
+	;;
+	"write")
+		FILE_NAME="$FILE_NAME_ACCESS_WRITE"
+	;;
+	*)
+		# This should never happen, but why not.
+		echo "Unknown named access mode: '$NAMED_ACCESS_MODE'"
+		exit 1
+	;;
+	esac
+
+	echo "User '$USER' has $NAMED_ACCESS_MODE access to:"
+	find . -type f -name "$FILE_NAME" -exec \
+		grep -xq "^$USER$" '{}' \; -exec \
+			dirname -- '{}' \; | \
+	while read -r LINE; do
+		REPO=$(echo "$LINE" | cut -c 3-)
+		echo "  $REPO"
+	done
+}
+
+_list_access "read"
+_list_access "write"

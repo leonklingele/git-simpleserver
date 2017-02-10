@@ -1,0 +1,24 @@
+#!/bin/sh
+
+REPO_TO_DELETE="$*"
+
+set -euf #o pipefail
+cd "$REPO_USER_PATH"
+
+# TODO(leon): DRY
+if ! (echo "$REPO_TO_DELETE" | grep -xq '^[a-zA-Z0-9_\-]*$'); then
+	echo "Disallowed characters in repo name. Allowed: a-z, A-Z, 0-9, _, -"
+	exit 1
+fi
+
+if [ -z "$REPO_TO_DELETE" ]; then
+	echo "No repo name specified"
+	exit 1
+fi
+
+if [ ! -e "$REPO_TO_DELETE/$FILE_NAME_MARKER" ]; then
+	echo "Repo '$REPO_TO_DELETE' does not exist"
+	exit 1
+fi
+
+rm -rf -- "$REPO_TO_DELETE"

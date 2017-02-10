@@ -1,0 +1,4 @@
+default:
+  ssh_user: git
+  ssh_server: git.my-server.com
+  #ssh_port: 22

@@ -1,0 +1,32 @@
+#!/bin/sh
+
+ARG1="$1"
+
+set -euf #o pipefail
+
+if [ ! -f "$FILE_PATH_AUTHORIZED_KEYS" ]; then
+	echo "File '$FILE_PATH_AUTHORIZED_KEYS' does not exist"
+	exit 1
+fi
+
+while read -r LINE; do
+	FIRST_LETTER=$(echo "$LINE" | head -c 1)
+	# TODO(leon): We might want to grep as well, so comment-lines can even start with a space
+	if [ "$FIRST_LETTER" = "#" ]; then
+		# It's a comment, ignore this line
+		continue
+	fi
+
+	# TODO(leon): Wow, this is such a hack! :o Switch to bash? Now?
+	USER=${LINE#'environment="GIT_USER='} # Everything after 'env..GIT_USER=', i.e. username followed by everything else
+	USER=$(echo "$USER" | cut -d '"' -f1) # split by '"' and use first result, i.e. username
+	TO_REMOVE=$(echo "$LINE" | cut -d ' ' -f1) # split line by ' ', use 3rd result, i.e. everything in front of the SSH public key
+	PUBLIC_KEY=${LINE#$TO_REMOVE} # remove 'TO_REMOVE' from line to get public key
+	PUBLIC_KEY=${PUBLIC_KEY#?} # remove leading space from public key
+
+	if [ "$ARG1" = "-v" ]; then
+		echo "$USER :: $PUBLIC_KEY"
+	else
+		echo "$USER"
+	fi
+done < "$FILE_PATH_AUTHORIZED_KEYS"

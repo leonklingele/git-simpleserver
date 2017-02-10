@@ -1,0 +1,35 @@
+#!/bin/sh
+
+USER_TO_DELETE="$1"
+
+set -euf #o pipefail
+
+if [ ! -f "$FILE_PATH_AUTHORIZED_KEYS" ]; then
+	echo "File '$FILE_PATH_AUTHORIZED_KEYS' does not exist"
+	exit 1
+fi
+
+if [ -z "$USER_TO_DELETE" ]; then
+	echo "No user name specified"
+	exit 1
+fi
+
+# TODO(leon): DRY
+if ! (echo "$USER_TO_DELETE" | grep -xq '^[a-zA-Z0-9_\-]*$'); then
+	echo "Disallowed characters in user name. Allowed: a-z, A-Z, 0-9, _, -"
+	exit 1
+fi
+
+if [ "$GIT_USER" = "$USER_TO_DELETE" ]; then
+	echo "You can't delete yourself :) Sometimes I hate myself as well, but what you're trying to do is just too rude."
+	exit 1
+fi
+
+# Regex is not an issue here, .* is not allowed in user names :)
+MATCH="^environment=\"GIT_USER=$USER_TO_DELETE\".*$"
+if ! grep -xq "$MATCH" "$FILE_PATH_AUTHORIZED_KEYS"; then
+	echo "User '$USER_TO_DELETE' does not exist"
+	exit 1
+fi
+
+sed -i "/$MATCH/d" "$FILE_PATH_AUTHORIZED_KEYS"

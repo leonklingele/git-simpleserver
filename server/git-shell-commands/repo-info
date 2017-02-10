@@ -1,0 +1,34 @@
+#!/bin/sh
+
+REPO="$*"
+
+set -euf #o pipefail
+cd "$REPO_USER_PATH"
+
+# TODO(leon): DRY
+if ! (echo "$REPO" | grep -xq '^[a-zA-Z0-9_\-]*$'); then
+	echo "Disallowed characters in repo name. Allowed: a-z, A-Z, 0-9, _, -"
+	exit 1
+fi
+
+if [ -z "$REPO" ]; then
+	echo "No repo name specified"
+	exit 1
+fi
+
+if [ ! -e "$REPO/$FILE_NAME_MARKER" ]; then
+	echo "Repo '$REPO' does not exist"
+	exit 1
+fi
+
+cd -- "$REPO"
+
+echo "Users with read access:"
+while read -r LINE; do
+	echo "  $LINE"
+done < "$FILE_NAME_ACCESS_READ"
+
+echo "Users with write access:"
+while read -r LINE; do
+	echo "  $LINE"
+done < "$FILE_NAME_ACCESS_WRITE"

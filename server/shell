@@ -1,0 +1,156 @@
+#!/bin/sh
+
+if [ -z "$GIT_USER" ]; then
+	echo "Need to have a GIT_USER name"
+	exit 1
+fi
+
+export GIT_SS_LOCAL_VERSION="1"
+export FILE_PATH_LOG="$HOME/log.txt"
+
+export FILE_NAME_MARKER=".ss-marker"
+export FILE_NAME_ACCESS_READ=".ss-access_read"
+export FILE_NAME_ACCESS_WRITE=".ss-access_write"
+export FILE_PATH_AUTHORIZED_KEYS="$HOME/.ssh/authorized_keys"
+export REPOS_PATH="$HOME/repos"
+export REPO_USER_PATH="$REPOS_PATH/$GIT_USER"
+
+CMD="$2"
+_ACCESSED_REPO_NAME=${CMD#* } # remove first parameter
+_ACCESSED_REPO_NAME=${_ACCESSED_REPO_NAME#"'"} # replace leading '
+_ACCESSED_REPO_NAME=${_ACCESSED_REPO_NAME%"'"} # replace trailing '
+export ACCESSED_REPO_PATH="$REPOS_PATH/$_ACCESSED_REPO_NAME"
+
+set -euf #o pipefail
+
+log() {
+	echo "$@" >> "$FILE_PATH_LOG"
+}
+
+if [ ! -d "$REPO_USER_PATH" ]; then
+	log "You don't have an users folder yet, $GIT_USER"
+	exit 1
+fi
+
+if [ $# -ne 2 ] || [ "$1" != "-c" ]; then
+	log "Interactive login not permitted"
+	echo "Interactive login not permitted"
+	exit 1
+fi
+
+require_admin_access() {
+	set +u
+	if [ "$GIT_ADMIN" != "true" ]; then
+		echo "You are not allowed to do that"
+		exit 1
+	fi
+	set -u
+}
+
+_require_access_mode() {
+	if [ ! -d "$ACCESSED_REPO_PATH" ]; then
+		log "Accessed repo does not exist: $ACCESSED_REPO_PATH"
+		exit 1
+	fi
+
+	local MODE="$1"
+	local ACCESS_FILE
+	case "$MODE" in
+	"read")
+		ACCESS_FILE="$FILE_NAME_ACCESS_READ"
+	;;
+	"write")
+		ACCESS_FILE="$FILE_NAME_ACCESS_WRITE"
+	;;
+	*)
+		echo "No such mode: '$MODE'"
+		exit 1
+	;;
+	esac
+
+	if [ ! -f "$ACCESSED_REPO_PATH/$ACCESS_FILE" ]; then
+		log "File '$ACCESSED_REPO_PATH/$ACCESS_FILE' does not exist"
+		exit 1
+	fi
+	if ! grep -xq "^$GIT_USER$" "$ACCESSED_REPO_PATH/$ACCESS_FILE"; then
+		log "User '$GIT_USER' has no $MODE access to '$ACCESSED_REPO_PATH'"
+		exit 1
+	fi
+	log "User '$GIT_USER' has $MODE access to '$ACCESSED_REPO_PATH'"
+}
+
+require_read_access() {
+	_require_access_mode "read"
+}
+
+require_write_access() {
+	_require_access_mode "write"
+}
+
+# Even if this might look vulnerable to a prefix / suffix attack to pass authentication
+# (e.g. " git-receive-pack" or "user ; some-other-command"), it is safe :)
+DO_REQUIRE_ADMIN=true
+DO_REQUIRE_READ_ACCESS=true
+DO_REQUIRE_WRITE_ACCESS=true
+DO_REQUIRE_VERSION=true
+case "$CMD" in
+	"git-receive-pack"*)
+		DO_REQUIRE_ADMIN=false
+		DO_REQUIRE_READ_ACCESS=false
+		DO_REQUIRE_VERSION=false
+		CMD="git-receive-pack '$ACCESSED_REPO_PATH'"
+	;;
+	"git-upload-pack"*)
+		DO_REQUIRE_ADMIN=false
+		DO_REQUIRE_WRITE_ACCESS=false
+		DO_REQUIRE_VERSION=false
+		CMD="git-upload-pack '$ACCESSED_REPO_PATH'"
+	;;
+	"git-upload-archive"*)
+		DO_REQUIRE_ADMIN=false
+		DO_REQUIRE_WRITE_ACCESS=false
+		DO_REQUIRE_VERSION=false
+		CMD="git-upload-archive '$ACCESSED_REPO_PATH'"
+	;;
+	"user"*)
+		DO_REQUIRE_READ_ACCESS=false
+		DO_REQUIRE_WRITE_ACCESS=false
+	;;
+	"repo"*)
+		DO_REQUIRE_ADMIN=false
+		DO_REQUIRE_READ_ACCESS=false
+		DO_REQUIRE_WRITE_ACCESS=false
+	;;
+esac
+
+if [ "$DO_REQUIRE_ADMIN" = true ]; then
+	require_admin_access
+fi
+
+if [ "$DO_REQUIRE_READ_ACCESS" = true ]; then
+	require_read_access
+fi
+
+if [ "$DO_REQUIRE_WRITE_ACCESS" = true ]; then
+	require_write_access
+fi
+
+if [ "$DO_REQUIRE_VERSION" = true ]; then
+	set +u
+	if [ -z "$GIT_SS_REMOTE_VERSION" ]; then
+		echo "Need to have a GIT_SS_REMOTE_VERSION env var"
+		exit 1
+	fi
+	set -u
+	if [ "$GIT_SS_REMOTE_VERSION" != "$GIT_SS_LOCAL_VERSION" ]; then
+		MSG="Your git-simpleserver client is outdated. Please update."
+		if [ "$GIT_SS_REMOTE_VERSION" -gt "$GIT_SS_LOCAL_VERSION" ]; then
+			MSG="The git-simpleserver server is outdated. Please update."
+		fi
+		echo "$MSG You: v$GIT_SS_REMOTE_VERSION, server: v$GIT_SS_LOCAL_VERSION"
+		exit 1
+	fi
+fi
+
+log "Executing '$CMD'"
+git-shell -c "$CMD"

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+set -euf #o pipefail
+
+exit 1

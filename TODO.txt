@@ -1,0 +1,26 @@
+TODO:
+
+For TODOs not listed in here, search for them via:
+  $ grep -r --exclude-dir=".git" --exclude="TODO.txt" "TODO" .
+
+- More tests!
+- user create --{allow-create-repos,admin}
+- Debian packaging
+- Docker image to quickly set up a self-hosted Git server
+- Support multiple profiles (set via config file, e.g. one server for work, one for private stuff)
+- Support to rename repos
+- Support to enable / disable users
+- Check for race conditions / use mutex / file locking
+- Allow to create new admin users via '--admin' flag
+- POSIX compliance
+- Repo move command
+- Individual error codes, so they can be checked for
+- DRY: Don't repeat yourself. Will be hard, we're using plain shell after all, not even bash
+- repo --current
+- repo create --track
+- sshd ChrootDirectory
+- Make repos forkable
+- Add simple issue tracker
+- Permissions per branch
+- Protected branches, so you can't force-push
+- Simple pull request management

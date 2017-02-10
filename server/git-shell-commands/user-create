@@ -1,0 +1,39 @@
+#!/bin/sh
+
+NEW_USER="$1"
+PUBLIC_KEY="$2"
+
+set -euf #o pipefail
+
+if [ ! -f "$FILE_PATH_AUTHORIZED_KEYS" ]; then
+	echo "File '$FILE_PATH_AUTHORIZED_KEYS' does not exist"
+	exit 1
+fi
+
+# TODO(leon): DRY
+if ! (echo "$NEW_USER" | grep -xq '^[a-zA-Z0-9_\-]*$'); then
+	echo "Disallowed characters in user name. Allowed: a-z, A-Z, 0-9, _, -"
+	exit 1
+fi
+
+if [ -z "$NEW_USER" ]; then
+	echo "No user name specified"
+	exit 1
+fi
+
+if [ -z "$PUBLIC_KEY" ]; then
+	echo "No public key specified"
+	exit 1
+fi
+
+# TODO(leon): Do we want to validate ssh-key type (e.g. rsa / ed25519 / ..)?
+case "$PUBLIC_KEY" in
+*'ssh-'**)
+;;
+*)
+	echo "Not a valid public key! SSH public keys must start with 'ssh-'"
+	exit 1
+;;
+esac
+
+printf 'environment="GIT_USER=%s" %s\n' "$NEW_USER" "$PUBLIC_KEY" >> "$FILE_PATH_AUTHORIZED_KEYS"

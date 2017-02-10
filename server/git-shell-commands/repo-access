@@ -1,0 +1,100 @@
+#!/bin/sh
+
+REPO="$1"
+ACCESS_MODE="$2"
+USER="$3"
+
+set -euf #o pipefail
+cd "$REPO_USER_PATH"
+
+# TODO(leon): DRY
+if ! (echo "$REPO" | grep -xq '^[a-zA-Z0-9_\-]*$'); then
+	echo "Disallowed characters in repo name. Allowed: a-z, A-Z, 0-9, _, -"
+	exit 1
+fi
+# TODO(leon): DRY
+if ! (echo "$USER" | grep -xq '^[a-zA-Z0-9_\-]*$'); then
+	echo "Disallowed characters in user name. Allowed: a-z, A-Z, 0-9, _, -"
+	exit 1
+fi
+
+if [ -z "$REPO" ]; then
+	echo "No repo name specified"
+	exit 1
+fi
+if [ -z "$ACCESS_MODE" ]; then
+	echo "No access mode specified"
+	exit 1
+fi
+if [ -z "$USER" ]; then
+	echo "No user name specified"
+	exit 1
+fi
+
+if [ "$GIT_USER" = "$USER" ]; then
+	echo "You can't modify your own permissions."
+	exit 1
+fi
+
+
+SHOULD_HAVE_READ_ACCESS=false
+SHOULD_HAVE_WRITE_ACCESS=false
+case "$ACCESS_MODE" in
+"-rw" )
+	SHOULD_HAVE_READ_ACCESS=true
+	SHOULD_HAVE_WRITE_ACCESS=true
+;;
+"-r")
+	SHOULD_HAVE_READ_ACCESS=true
+;;
+"-rm")
+	# Has nothing, this is already the default
+;;
+esac
+
+if [ ! -e "$REPO/$FILE_NAME_MARKER" ]; then
+	echo "Repo '$REPO' does not exist"
+	exit 1
+fi
+
+cd -- "$REPO"
+
+_modify_access() {
+	local NAMED_ACCESS_MODE="$1"
+	local SHOULD_HAVE
+	local FILE_NAME
+	case "$NAMED_ACCESS_MODE" in
+	"read")
+		SHOULD_HAVE="$SHOULD_HAVE_READ_ACCESS"
+		FILE_NAME="$FILE_NAME_ACCESS_READ"
+	;;
+	"write")
+		SHOULD_HAVE="$SHOULD_HAVE_WRITE_ACCESS"
+		FILE_NAME="$FILE_NAME_ACCESS_WRITE"
+	;;
+	*)
+		# This should never happen, but why not.
+		echo "Unknown named access mode: '$NAMED_ACCESS_MODE'"
+		exit 1
+	;;
+	esac
+
+	# Regex is not an issue here, .* is not allowed in user names :)
+	MATCH="^$USER$"
+	if [ "$SHOULD_HAVE" = true ]; then
+		if grep -xq "$MATCH" "$FILE_NAME"; then
+			echo "User '$USER' already has $NAMED_ACCESS_MODE access"
+		else
+			# Grant access
+			echo "$USER" >> "$FILE_NAME"
+			echo "User '$USER' now has $NAMED_ACCESS_MODE access"
+		fi
+	else
+		# Remove access
+		sed -i "/$MATCH/d" "$FILE_NAME"
+		echo "User '$USER' no longer has $NAMED_ACCESS_MODE access"
+	fi
+}
+
+_modify_access "read"
+_modify_access "write"
