@@ -92,10 +92,15 @@ User 'leon' has write access to:
   leon/this-one-awesome-project
 ```
 
-### How to install
+# Installation
+
+First, install the dependencies (most likely you already have them):
+
+```sh
+apt-get install git ssh sed grep gawk
+```
 
 This app consists of a server and a client part.
-
 On your server, run:
 
 ```sh
@@ -135,26 +140,16 @@ $ $EDITOR $HOME/.git-simpleserver/config.yaml
 # Don't modify 'ssh_user'
 ```
 
-### Dependencies
-
-- git
-- ssh
-- sed
-- grep
-- awk
-
-Install via `apt-get install git ssh sed grep gawk`
-
-### How it works
+# How it works
 
 Normally when logging in into a remote server via `ssh`, you'll get an interactive shell (most likely a `bash`). That's where you type in your fancy commands. Linux let's you define a custom shell to use (see `man chsh`). Instead of `bash`, you can for example define any script (`bash`, `sh`, `python`, ..) as your shell. Upon successful login, this script is executed and can control which commands you are allowed to run and which not.
 If `git-simpleserver` is set up on your server and you successfully authenticated as user `git` using your ssh key, a [special shell](./server/shell) is launched. This shell only allows you to run a small number of commands, dedicated to managing your Git repos and Git users.
 Now you're logged in as user `git`, but how does `git-simpleserver`'s user management work then? Well, that's another cool feature of OpenSSH: For each public key in `authorized_keys` you can define custom env vars which get set when this public key is used to log in. `git-simpleserver` connects a `GIT_USER` environment variable to each public key. Think of `GIT_USER` as a virtual user name, similar, but still different to the ssh user (`git`). Using `GIT_USER` we know who has logged in and can restrict read and write permissions.
 No one can access your repos, unless you explicitly granted permissions to that person via `git ss user add` or the `.ssh/authorized_keys` file.
 
-#### Contact
+# Contact
 
-Want to share something confidentially? Use my Git's email address and this PGP key:
+Want to share something confidentially? Use my Git email address and this PGP key:
 ```pgp
 PGP Key ID: 31EEC211 / 0x0C8AF48831EEC211
 PGP Key fingerprint: B231 B273 70B7 A050 1CBD  992B 0C8A F488 31EE C211
