@@ -23,4 +23,3 @@ For TODOs not listed in here, search for them via:
 - Add simple issue tracker
 - Permissions per branch
 - Protected branches, so you can't force-push
-- Simple pull request management

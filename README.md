@@ -140,6 +140,10 @@ $ $EDITOR $HOME/.git-simpleserver/config.yaml
 # Don't modify 'ssh_user'
 ```
 
+# Code review: How to manage pull requests
+
+Looking for a way to manage pull requests for your repositories? git-simpleserver loves [git-appraise](https://github.com/google/git-appraise). It's awesome!
+
 # How it works
 
 Normally when logging in into a remote server via `ssh`, you'll get an interactive shell (most likely a `bash`). That's where you type in your fancy commands. Linux let's you define a custom shell to use (see `man chsh`). Instead of `bash`, you can for example define any script (`bash`, `sh`, `python`, ..) as your shell. Upon successful login, this script is executed and can control which commands you are allowed to run and which not.
