@@ -25,7 +25,7 @@ repo_info() {
 	set -u
 
 	local REPO="$*"
-	local CMD="repo-info \"$REPO\""
+	local CMD="repo-info '$REPO'"
 	local OUT
 	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
 
@@ -58,7 +58,7 @@ repo_create() {
 	if [ "$INTERACTIVE_MODE" = true ]; then
 		confirm "Do you want to create repo '$NEW_REPO'?"
 	fi
-	local CMD="repo-create \"$NEW_REPO\""
+	local CMD="repo-create '$NEW_REPO'"
 	local OUT
 	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
 
@@ -93,7 +93,7 @@ repo_delete() {
 	if [ "$INTERACTIVE_MODE" = true ]; then
 		confirm "Do you really want to delete repo '$REPO_TO_DELETE'?"
 	fi
-	local CMD="repo-delete \"$REPO_TO_DELETE\""
+	local CMD="repo-delete '$REPO_TO_DELETE'"
 	local OUT
 	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
 
@@ -119,7 +119,7 @@ repo_access() {
 	local REPO="$1"
 	local ACCESS_MODE="$2"
 	local USER="$3"
-	local CMD="repo-access \"$REPO\" \"$ACCESS_MODE\" \"$USER\""
+	local CMD="repo-access '$REPO' '$ACCESS_MODE' '$USER'"
 	local OUT
 	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
 
@@ -164,7 +164,7 @@ user_info() {
 	set -u
 
 	local USER="$1"
-	local CMD="user-info \"$USER\""
+	local CMD="user-info '$USER'"
 	local OUT
 	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
 
@@ -188,7 +188,7 @@ user_create() {
 	local NEW_USER="$1"
 	echo "Please paste the SSH public key for user '$NEW_USER'. Confirm by pressing the 'Enter' key."
 	local PUBLIC_KEY=$(do_read)
-	local CMD="user-create \"$NEW_USER\" \"$PUBLIC_KEY\""
+	local CMD="user-create '$NEW_USER' $PUBLIC_KEY'"
 	local OUT
 	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
 
@@ -211,7 +211,7 @@ user_delete() {
 
 	local USER_TO_DELETE="$1"
 	confirm "Do you really want to delete user '$USER_TO_DELETE'?"
-	local CMD="user-delete \"$USER_TO_DELETE\""
+	local CMD="user-delete '$USER_TO_DELETE'"
 	local OUT
 	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
 
