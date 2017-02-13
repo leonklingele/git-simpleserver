@@ -28,7 +28,7 @@ fi
 
 # TODO(leon): Do we want to validate ssh-key type (e.g. rsa / ed25519 / ..)?
 case "$PUBLIC_KEY" in
-*'ssh-'**)
+'ssh-'*)
 ;;
 *)
 	echo "Not a valid public key! SSH public keys must start with 'ssh-'"
