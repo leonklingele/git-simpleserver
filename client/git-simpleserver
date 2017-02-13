@@ -35,8 +35,8 @@ repo_info_help() {
 	echo "usage: git simpleserver repo info <repo name>"
 }
 repo_create() {
-	set +u
 	local INTERACTIVE_MODE=true
+	set +u
 	case "$1" in
 	"--help")
 		repo_create_help
@@ -70,8 +70,8 @@ repo_create_help() {
 	echo "usage: git simpleserver repo create <repo name>"
 }
 repo_delete() {
-	set +u
 	local INTERACTIVE_MODE=true
+	set +u
 	case "$1" in
 	"--help")
 		repo_delete_help
@@ -264,7 +264,7 @@ exec_ssh_cmd() {
 	local OUT
 	local EXIT_CODE
 	set +e
-	OUT=$(ssh -o SendEnv=GIT_SS_REMOTE_VERSION -p "$PORT" "$LOGIN" "$CMD" 2>&1)
+	OUT=$(ssh -o SendEnv=GIT_SS_REMOTE_VERSION -p "$PORT" "$LOGIN" -- "$CMD" 2>&1)
 	EXIT_CODE=$?
 	set -e
 	if [ $EXIT_CODE -ne 0 ]; then
