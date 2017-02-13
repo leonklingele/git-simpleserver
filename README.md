@@ -3,7 +3,7 @@
 Git Simple Server (abbreviated "git ss") makes it easy to manage your Git repos on your own server from the command line. It's super lightweight, secure and only requires a shell, `git` and `ssh`.
 It has an integrated user management, making it simple to manage read and write permissions on a per-user, per-repo basis.
 
-![demo](https://www.leonklingele.de/git-simpleserver/demo.gif)
+![demo](https://www.leonklingele.de/git-simpleserver/demo.gif?20170213)
 
 ### Create a new repo on your server..
 
