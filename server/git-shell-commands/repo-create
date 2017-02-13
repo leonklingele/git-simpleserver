@@ -16,13 +16,6 @@ if [ -z "$NEW_REPO" ]; then
 	exit 1
 fi
 
-NEW_REPO_PARENT=$(dirname -- "$NEW_REPO")
-# TODO(leon): Is this check still required?
-if [ "$NEW_REPO_PARENT" != "." ] && [ -d "$NEW_REPO_PARENT" ]; then
-	echo "Can't create a repo inside an existing repo"
-	exit 1
-fi
-
 if [ -e "$NEW_REPO/$FILE_NAME_MARKER" ]; then
 	echo "Repo '$NEW_REPO' already exists"
 	exit 1
