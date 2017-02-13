@@ -174,11 +174,19 @@ user_info_help() {
 	echo "usage: git simpleserver user info <user name>"
 }
 user_create() {
+	local INTERACTIVE_MODE=true
 	set +u
-	if [ "$1" = "--help" ]; then
+	case "$1" in
+	"--help")
 		user_create_help
 		exit 0
-	fi
+	;;
+	"-y")
+		# Non-interactive mode
+		INTERACTIVE_MODE=false
+		shift
+	;;
+	esac
 	if [ -z "$1" ]; then
 		user_create_help
 		exit 0
@@ -186,9 +194,14 @@ user_create() {
 	set -u
 
 	local NEW_USER="$1"
-	echo "Please paste the SSH public key for user '$NEW_USER'. Confirm by pressing the 'Enter' key."
-	local PUBLIC_KEY=$(do_read)
-	local CMD="user-create '$NEW_USER' $PUBLIC_KEY'"
+	set +u
+	local PUBLIC_KEY="$2"
+	set -u
+	if [ "$INTERACTIVE_MODE" = true ] || [ ! -n "$PUBLIC_KEY" ]; then
+		echo "Please paste the SSH public key for user '$NEW_USER'. Confirm by pressing the 'Enter' key."
+		PUBLIC_KEY=$(do_read)
+	fi
+	local CMD="user-create '$NEW_USER' '$PUBLIC_KEY'"
 	local OUT
 	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
 
@@ -198,19 +211,29 @@ user_create_help() {
 	echo "usage: git simpleserver user create <user name>"
 }
 user_delete() {
+	local INTERACTIVE_MODE=true
 	set +u
-	if [ "$1" = "--help" ]; then
-		repo_delete_help
+	case "$1" in
+	"--help")
+		user_delete_help
 		exit 0
-	fi
+	;;
+	"-y")
+		# Non-interactive mode
+		INTERACTIVE_MODE=false
+		shift
+	;;
+	esac
 	if [ -z "$1" ]; then
-		repo_create_help
+		user_delete_help
 		exit 0
 	fi
 	set -u
 
 	local USER_TO_DELETE="$1"
-	confirm "Do you really want to delete user '$USER_TO_DELETE'?"
+	if [ "$INTERACTIVE_MODE" = true ]; then
+		confirm "Do you really want to delete user '$USER_TO_DELETE'?"
+	fi
 	local CMD="user-delete '$USER_TO_DELETE'"
 	local OUT
 	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
