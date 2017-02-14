@@ -3,7 +3,6 @@ TODO:
 For TODOs not listed in here, search for them via:
   $ grep -r --exclude-dir=".git" --exclude="TODO.txt" "TODO" .
 
-- More tests!
 - user create --{allow-create-repos,admin}
 - Debian packaging
 - Docker image to quickly set up a self-hosted Git server
