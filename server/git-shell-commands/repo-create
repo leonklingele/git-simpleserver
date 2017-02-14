@@ -6,7 +6,7 @@ set -euf #o pipefail
 cd "$REPO_USER_PATH"
 
 # TODO(leon): DRY
-if ! (echo "$NEW_REPO" | grep -xq '^[a-zA-Z0-9_\-]*$'); then
+if ! (echo "$NEW_REPO" | grep -xq '^[a-zA-Z0-9_-]*$'); then
 	echo "Disallowed characters in repo name. Allowed: a-z, A-Z, 0-9, _, -"
 	exit 1
 fi

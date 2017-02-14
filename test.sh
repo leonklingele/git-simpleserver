@@ -249,6 +249,7 @@ repo_create "my test" "$INVALID_REPO_NAME_ERROR_MSG"
 repo_create "my.test" "$INVALID_REPO_NAME_ERROR_MSG"
 repo_create "my–test" "$INVALID_REPO_NAME_ERROR_MSG" # endash
 repo_create 'my\\test' "$INVALID_REPO_NAME_ERROR_MSG"
+repo_create 'lal\\\\a' "$INVALID_REPO_NAME_ERROR_MSG"
 repo_create "my+test" "$INVALID_REPO_NAME_ERROR_MSG"
 repo_create "my/test" "$INVALID_REPO_NAME_ERROR_MSG"
 repos_list_count_must_equal "3"

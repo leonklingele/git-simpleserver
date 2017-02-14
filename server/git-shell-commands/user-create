@@ -11,7 +11,7 @@ if [ ! -f "$FILE_PATH_AUTHORIZED_KEYS" ]; then
 fi
 
 # TODO(leon): DRY
-if ! (echo "$NEW_USER" | grep -xq '^[a-zA-Z0-9_\-]*$'); then
+if ! (echo "$NEW_USER" | grep -xq '^[a-zA-Z0-9_-]*$'); then
 	echo "Disallowed characters in user name. Allowed: a-z, A-Z, 0-9, _, -"
 	exit 1
 fi

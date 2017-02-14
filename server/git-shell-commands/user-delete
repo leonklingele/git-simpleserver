@@ -15,7 +15,7 @@ if [ -z "$USER_TO_DELETE" ]; then
 fi
 
 # TODO(leon): DRY
-if ! (echo "$USER_TO_DELETE" | grep -xq '^[a-zA-Z0-9_\-]*$'); then
+if ! (echo "$USER_TO_DELETE" | grep -xq '^[a-zA-Z0-9_-]*$'); then
 	echo "Disallowed characters in user name. Allowed: a-z, A-Z, 0-9, _, -"
 	exit 1
 fi
