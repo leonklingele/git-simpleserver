@@ -1,8 +1,10 @@
 GIT_HOME = /home/git
 
 install:
-	@echo "User '$(GIT_USER)', is that correct? Press any key to continue, Ctrl + C to abort"
-	@read -r CONTINUE
+	@if [ -z "$(NON_INTERACTIVE)" ]; then \
+		echo "User '$(GIT_USER)', is that correct? Press any key to continue, Ctrl + C to abort" ; \
+		read -r CONTINUE ; \
+	fi
 	@echo "Installing.."
 	@sudo adduser \
 		--gecos Git \
