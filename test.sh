@@ -232,6 +232,8 @@ user_info() {
 	fi
 }
 
+# TODO(leon): Don't use travis here
+USER_NAME="travis"
 INVALID_REPO_NAME_ERROR_MSG="Error! Disallowed characters in repo name. Allowed: a-z, A-Z, 0-9, _, -"
 INVALID_USER_NAME_ERROR_MSG="Error! Disallowed characters in user name. Allowed: a-z, A-Z, 0-9, _, -"
 INVALID_SSH_KEY_ERROR_MSG="Error! Not a valid public key! SSH public keys must start with 'ssh-'"
@@ -262,30 +264,30 @@ repo_delete "my/test" "$INVALID_REPO_NAME_ERROR_MSG" # just to make sure slash n
 repos_list_count_must_equal "2"
 
 repo_info "test2" "Users with read access:
-  leon
+  $USER_NAME
 Users with write access:
-  leon"
+  $USER_NAME"
 repo_access "test2" "-rw" "blubb" "User 'blubb' now has read access
 User 'blubb' now has write access"
 repo_info "test2" "Users with read access:
-  leon
+  $USER_NAME
   blubb
 Users with write access:
-  leon
+  $USER_NAME
   blubb"
 repo_access "test2" "-r" "blubb" "User 'blubb' already has read access
 User 'blubb' no longer has write access"
 repo_info "test2" "Users with read access:
-  leon
+  $USER_NAME
   blubb
 Users with write access:
-  leon"
+  $USER_NAME"
 repo_access "test2" "-rm" "blubb" "User 'blubb' no longer has read access
 User 'blubb' no longer has write access"
 repo_info "test2" "Users with read access:
-  leon
+  $USER_NAME
 Users with write access:
-  leon"
+  $USER_NAME"
 
 repo_info "test-lala" "Error! Repo 'test-lala' does not exist"
 
@@ -307,12 +309,12 @@ user_delete "=" "$INVALID_USER_NAME_ERROR_MSG"
 users_list_count_must_equal "2"
 
 # TODO(leon): Fix this test
-user_info "leon" "User 'leon' has read access to:
-  leon/test2
-  leon/test3
-User 'leon' has write access to:
-  leon/test2
-  leon/test3"
+user_info "$USER_NAME" "User '$USER_NAME' has read access to:
+  $USER_NAME/test2
+  $USER_NAME/test3
+User '$USER_NAME' has write access to:
+  $USER_NAME/test2
+  $USER_NAME/test3"
 # TODO(leon): Fix this test
 #user_info "test4" "Error! User 'test4' does not exist"
 
