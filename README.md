@@ -1,5 +1,7 @@
 # Git Simple Server — Securely manage your own Git server
 
+[![Build Status](https://travis-ci.org/leonklingele/git-simpleserver.svg?branch=master)](https://travis-ci.org/leonklingele/git-simpleserver)
+
 Git Simple Server (abbreviated "git ss") makes it easy to manage your Git repos on your own server from the command line. It's super lightweight, secure and only requires a shell, `git` and `ssh`.
 It has an integrated user management, making it simple to manage read and write permissions on a per-user, per-repo basis.
 
