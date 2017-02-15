@@ -1,0 +1,38 @@
+language: shell
+
+before_install:
+  - sudo apt-get update
+
+  # SSH stuff, so we can ssh into localhost
+  - ssh-keyscan localhost >> $HOME/.ssh/known_hosts
+  - ssh-keygen -f $HOME/.ssh/id_rsa -N ''
+
+install:
+  - sudo apt-get install git ssh sed grep gawk
+
+  - sudo cp -R $(pwd) /usr/local/etc/git-simpleserver
+  - cd /usr/local/etc/git-simpleserver/server
+  - GIT_USER="$(whoami)" NON_INTERACTIVE=true sudo make install
+  - cd ../client
+  - make config
+  - sudo make install
+  - cd ..
+
+before_script:
+  # Set up SSH for git-simpleserver
+  - echo "PermitUserEnvironment yes" | sudo tee -a /etc/ssh/sshd_config > /dev/null
+  # For some reason including any of the other settings prevents sshd from restarting :(
+  - sudo /etc/init.d/ssh reload
+
+  # Patch out version check. TODO(leon): This is terrible!
+  - sudo sed -i "s/DO_REQUIRE_VERSION=true/DO_REQUIRE_VERSION=false/" /usr/local/etc/git-simpleserver/server/shell
+
+  # Add our ssh public key to git's authorized_keys file
+  - PUBLIC_KEY=$(cat $HOME/.ssh/id_rsa.pub)
+  - sudo sed -i "s|your-ssh-public-key|$PUBLIC_KEY|" /home/git/.ssh/authorized_keys
+
+  # Set ssh server to use
+  - sed -i "s/ssh_server:.*/ssh_server:localhost/" $HOME/.git-simpleserver/config.yaml
+
+script:
+  - ./test.sh --i-know-what-im-doing
