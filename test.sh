@@ -232,8 +232,7 @@ user_info() {
 	fi
 }
 
-# TODO(leon): Don't use travis here
-USER_NAME="travis"
+USER_NAME="$(whoami)"
 INVALID_REPO_NAME_ERROR_MSG="Error! Disallowed characters in repo name. Allowed: a-z, A-Z, 0-9, _, -"
 INVALID_USER_NAME_ERROR_MSG="Error! Disallowed characters in user name. Allowed: a-z, A-Z, 0-9, _, -"
 INVALID_SSH_KEY_ERROR_MSG="Error! Not a valid public key! SSH public keys must start with 'ssh-'"
