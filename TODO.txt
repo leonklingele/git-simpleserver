@@ -4,13 +4,13 @@ For TODOs not listed in here, search for them via:
   $ grep -r --exclude-dir=".git" --exclude="TODO.txt" "TODO" .
 
 - user create --{allow-create-repos,admin}
+- Usage: $0
 - Debian packaging
 - Docker image to quickly set up a self-hosted Git server
 - Support multiple profiles (set via config file, e.g. one server for work, one for private stuff)
 - Support to rename repos
 - Support to enable / disable users
 - Check for race conditions / use mutex / file locking
-- Allow to create new admin users via '--admin' flag
 - POSIX compliance
 - Repo move command
 - Individual error codes, so they can be checked for
