@@ -3,7 +3,7 @@
 set -euf #o pipefail
 cd "$REPO_USER_PATH"
 
-OUT=$(find . -type f -name "$FILE_NAME_MARKER" -exec dirname -- '{}' \; | cut -c 3-)
+OUT=$(find . -type f -name "$FILE_NAME_MARKER" -exec printf "$GIT_USER/" \; -exec /bin/sh -c "dirname -- '{}' | cut -c 3-" \;)
 if [ -z "$OUT" ]; then
 	echo "No repos found!"
 	exit 1

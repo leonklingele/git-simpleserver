@@ -10,7 +10,9 @@ repo_list() {
 	local CMD="repo-list"
 	local OUT
 	OUT=$(exec_ssh_cmd "$CMD") || (EXIT_CODE=$? ; echo "$OUT" ; exit $EXIT_CODE)
-	echo "$OUT"
+	echo "$OUT" | while read -r LINE; do
+		echo "$LOGIN:$LINE"
+	done
 }
 repo_info() {
 	set +u
