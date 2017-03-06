@@ -19,6 +19,6 @@ For TODOs not listed in here, search for them via:
 - repo create --track
 - sshd ChrootDirectory
 - Make repos forkable
-- Add simple issue tracker
+- Add simple issue tracker (https://github.com/neithernut/git-dit ?)
 - Permissions per branch
 - Protected branches, so you can't force-push
