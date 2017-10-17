@@ -115,6 +115,7 @@ Match User git
 	AcceptEnv GIT_SS_REMOTE_VERSION
 	AllowAgentForwarding no
 	AllowTcpForwarding no
+	Banner none
 	PermitTTY no
 	X11Forwarding no
 # Nothing else should be below the "Match User git" block
