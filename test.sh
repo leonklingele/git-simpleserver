@@ -153,7 +153,7 @@ users_list_count_must_equal() {
 	fi
 	local USER_LIST_COUNT=$(echo "$USER_LIST" | wc -l)
 	if [ "$USER_LIST_COUNT" != "$EXPECTED_COUNT" ]; then
-		echo -e "Error! Too many users available: $USER_LIST_COUNT, expected $EXPECTED_COUNT. Users found:\n$USER_LIST"
+		echo "Error! Too many users available: $USER_LIST_COUNT, expected $EXPECTED_COUNT. Users found:\n$USER_LIST"
 		exit 1
 	fi
 }
