@@ -5,6 +5,20 @@ USER="$*"
 set -euf #o pipefail
 cd "$REPOS_PATH"
 
+# TODO(leon): DRY
+if [ ! -f "$FILE_PATH_AUTHORIZED_KEYS" ]; then
+	echo "File '$FILE_PATH_AUTHORIZED_KEYS' does not exist"
+	exit 1
+fi
+
+# TODO(leon): DRY
+# Regex is not an issue here, .* is not allowed in user names :)
+MATCH="^environment=\"GIT_USER=$USER\".*$"
+if ! grep -xq "$MATCH" "$FILE_PATH_AUTHORIZED_KEYS"; then
+	echo "User '$USER' does not exist"
+	exit 1
+fi
+
 _list_access() {
 	local NAMED_ACCESS_MODE="$1"
 	local FILE_NAME

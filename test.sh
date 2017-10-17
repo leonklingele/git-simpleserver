@@ -314,7 +314,6 @@ user_info "$USER_NAME" "User '$USER_NAME' has read access to:
 User '$USER_NAME' has write access to:
   $USER_NAME/test2
   $USER_NAME/test3"
-# TODO(leon): Fix this test
-#user_info "test4" "Error! User 'test4' does not exist"
+user_info "test4" "Error! User 'test4' does not exist"
 
 echo "Yay! Everything works fine :)"
