@@ -39,7 +39,8 @@ _list_access() {
 	echo "User '$USER' has $NAMED_ACCESS_MODE access to:"
 	find . -type f -name "$FILE_NAME" -exec \
 		grep -xq "^$USER$" '{}' \; -exec \
-			dirname -- '{}' \; | \
+		dirname -- '{}' \; | \
+		LC_ALL=C sort | \
 	while read -r LINE; do
 		REPO=$(echo "$LINE" | cut -c 3-)
 		echo "  $REPO"

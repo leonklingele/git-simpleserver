@@ -307,7 +307,6 @@ user_delete "/" "$INVALID_USER_NAME_ERROR_MSG"
 user_delete "=" "$INVALID_USER_NAME_ERROR_MSG"
 users_list_count_must_equal "2"
 
-# TODO(leon): Fix this test
 user_info "$USER_NAME" "User '$USER_NAME' has read access to:
   $USER_NAME/test2
   $USER_NAME/test3
