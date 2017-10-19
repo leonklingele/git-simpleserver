@@ -36,11 +36,10 @@ if [ "$GIT_USER" = "$USER" ]; then
 	exit 1
 fi
 
-
 SHOULD_HAVE_READ_ACCESS=false
 SHOULD_HAVE_WRITE_ACCESS=false
 case "$ACCESS_MODE" in
-"-rw" )
+"-rw")
 	SHOULD_HAVE_READ_ACCESS=true
 	SHOULD_HAVE_WRITE_ACCESS=true
 ;;
