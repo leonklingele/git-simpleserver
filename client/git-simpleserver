@@ -407,6 +407,7 @@ prepare_config() {
 }
 
 CONFIG_FILE_PATH="$HOME/.git-simpleserver/config.yaml"
+set +u
 case "$1" in
 "--config" | "-c")
 	shift
@@ -414,6 +415,7 @@ case "$1" in
 	shift
 ;;
 esac
+set -u
 if [ ! -f "$CONFIG_FILE_PATH" ]; then
 	echo "Config file '$CONFIG_FILE_PATH' does not exist"
 	exit 1
