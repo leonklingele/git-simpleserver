@@ -1,0 +1,36 @@
+#!/bin/sh
+
+. "$TESTSDIR/common-user.sh"
+
+INVALID_SSH_KEY_ERROR_MSG="Error! Not a valid public key! SSH public keys must start with 'ssh-'"
+INVALID_USER_NAME_ERROR_MSG="Error! Disallowed characters in user name. Allowed: a-z, A-Z, 0-9, _, -"
+
+# Test user listing & creation
+users_list_count_must_equal "1"
+user_create "test" "ssh-rsa"
+users_list_count_must_equal "2"
+user_create "test2" "ssh-ed25519"
+users_list_count_must_equal "3"
+user_create "invalid-ssh" "invalid-ssh" "$INVALID_SSH_KEY_ERROR_MSG"
+user_create "invalid-ssh" "ssh" "$INVALID_SSH_KEY_ERROR_MSG"
+users_list_count_must_equal "3"
+
+# Test user deletion
+user_delete "test2"
+users_list_count_must_equal "2"
+user_delete "test2" "Error! User 'test2' does not exist"
+users_list_count_must_equal "2"
+user_delete "/" "$INVALID_USER_NAME_ERROR_MSG"
+user_delete "=" "$INVALID_USER_NAME_ERROR_MSG"
+users_list_count_must_equal "2"
+
+# Test user info of non-existing repo
+user_info "test4" "Error! User 'test4' does not exist"
+
+# Test repo info of existing repo
+user_info "$USER_NAME" "User '$USER_NAME' has read access to:
+  $USER_NAME/test2
+  $USER_NAME/test3
+User '$USER_NAME' has write access to:
+  $USER_NAME/test2
+  $USER_NAME/test3"

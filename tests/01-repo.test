@@ -1,0 +1,62 @@
+#!/bin/sh
+
+. "$TESTSDIR/common-repo.sh"
+
+INVALID_REPO_NAME_ERROR_MSG="Error! Disallowed characters in repo name. Allowed: a-z, A-Z, 0-9, _, -"
+
+# Test repo listing & creation
+repos_list_count_must_equal "0"
+repo_create "test" # should not fail
+repos_list_count_must_equal "1"
+repo_create "test2" # should not fail
+repos_list_count_must_equal "2"
+repo_create "test3" # should not fail
+repos_list_count_must_equal "3"
+repo_create "test2" "Error! Repo 'test2' already exists" # create test a second time, should fail
+repos_list_count_must_equal "3"
+repo_create "my test" "$INVALID_REPO_NAME_ERROR_MSG"
+repo_create "my.test" "$INVALID_REPO_NAME_ERROR_MSG"
+repo_create "my–test" "$INVALID_REPO_NAME_ERROR_MSG" # endash
+repo_create 'my\\test' "$INVALID_REPO_NAME_ERROR_MSG"
+repo_create 'lal\\\\a' "$INVALID_REPO_NAME_ERROR_MSG"
+repo_create "my+test" "$INVALID_REPO_NAME_ERROR_MSG"
+repo_create "my/test" "$INVALID_REPO_NAME_ERROR_MSG"
+repos_list_count_must_equal "3"
+
+# Test repo deletion
+repo_delete "test"
+repos_list_count_must_equal "2"
+repo_delete "test" "Error! Repo 'test' does not exist"
+repos_list_count_must_equal "2"
+repo_delete "my/test" "$INVALID_REPO_NAME_ERROR_MSG" # just to make sure slash never works
+repos_list_count_must_equal "2"
+
+# Test repo info of non-existing repo
+repo_info "test-non-existing" "Error! Repo 'test-non-existing' does not exist"
+
+# Test repo info of existing repo
+repo_info "test2" "Users with read access:
+  $USER_NAME
+Users with write access:
+  $USER_NAME"
+repo_access "test2" "-rw" "blubb" "User 'blubb' now has read access
+User 'blubb' now has write access"
+repo_info "test2" "Users with read access:
+  $USER_NAME
+  blubb
+Users with write access:
+  $USER_NAME
+  blubb"
+repo_access "test2" "-r" "blubb" "User 'blubb' already has read access
+User 'blubb' no longer has write access"
+repo_info "test2" "Users with read access:
+  $USER_NAME
+  blubb
+Users with write access:
+  $USER_NAME"
+repo_access "test2" "-rm" "blubb" "User 'blubb' no longer has read access
+User 'blubb' no longer has write access"
+repo_info "test2" "Users with read access:
+  $USER_NAME
+Users with write access:
+  $USER_NAME"

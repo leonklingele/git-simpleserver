@@ -35,4 +35,4 @@ before_script:
   - sed -i "s/ssh_server:.*/ssh_server:localhost/" $HOME/.git-simpleserver/config.yaml
 
 script:
-  - ./test.sh --i-know-what-im-doing
+  - ./tests/run.sh --i-know-what-im-doing

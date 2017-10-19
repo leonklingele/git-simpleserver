@@ -1,0 +1,11 @@
+#!/bin/sh
+
+. "$TESTSDIR/common-repo.sh"
+. "$TESTSDIR/common-user.sh"
+
+# Clean up repos
+repo_delete "test2"
+repo_delete "test3"
+
+# Clean up users
+user_delete "test"
