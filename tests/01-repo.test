@@ -12,7 +12,7 @@ repo_create "test2" # should not fail
 repos_list_count_must_equal "2"
 repo_create "test3" # should not fail
 repos_list_count_must_equal "3"
-repo_create "test2" "Error! Repo 'test2' already exists" # create test a second time, should fail
+repo_create "test2" "Error! Repo 'test2' already exists" # create test2 a second time, should fail
 repos_list_count_must_equal "3"
 repo_create "my test" "$INVALID_REPO_NAME_ERROR_MSG"
 repo_create "my.test" "$INVALID_REPO_NAME_ERROR_MSG"
