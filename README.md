@@ -99,7 +99,7 @@ User 'leon' has write access to:
 First, install the dependencies (most likely you already have them):
 
 ```sh
-apt-get install git ssh sed grep gawk
+apt-get install --no-install-recommends git sudo ssh sed grep make
 ```
 
 This app consists of a server and a client part.
