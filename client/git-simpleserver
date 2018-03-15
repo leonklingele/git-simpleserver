@@ -300,16 +300,18 @@ exec_ssh_cmd() {
 }
 
 main() {
-	if [ $# -lt 2 ]; then
-		usage
-	fi
-
 	CMD="usage"
 
-	local PARAM1="$1"
-	shift
-	local PARAM2="$1"
-	shift
+	local PARAM1
+	local PARAM2
+	if [ $# -gt 0 ]; then
+		PARAM1="$1"
+		shift
+	fi
+	if [ $# -gt 0 ]; then
+		PARAM2="$1"
+		shift
+	fi
 
 	case "$PARAM1" in
 	"repo" | "repos")
