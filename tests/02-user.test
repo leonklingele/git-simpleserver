@@ -14,6 +14,8 @@ users_list_count_must_equal "3"
 user_create "invalid-ssh" "invalid-ssh" "$INVALID_SSH_KEY_ERROR_MSG"
 user_create "invalid-ssh" "ssh" "$INVALID_SSH_KEY_ERROR_MSG"
 users_list_count_must_equal "3"
+user_create "test" "ssh-rsa" "Error! User 'test' already exists"
+users_list_count_must_equal "3"
 
 # Test user deletion
 user_delete "test2"
