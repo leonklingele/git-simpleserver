@@ -361,7 +361,10 @@ main() {
 }
 
 usage() {
-	echo "usage: git simpleserver <subcommand>"
+	echo "usage: git simpleserver [options] <subcommand>"
+	echo
+	echo "Available options are:"
+	echo "   --config  Specify path to config file to use."
 	echo
 	echo "Available subcommands are:"
 	echo "   repo      Create, list and modify repositories."
