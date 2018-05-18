@@ -34,6 +34,11 @@ if [ -z "$PUBLIC_KEY" ]; then
 	exit 1
 fi
 
+if (echo "$PUBLIC_KEY" | grep -xPq '^.*(\047|\042).*$'); then
+	echo 'Disallowed characters in public key. Disallowed: '"'"', "'
+	exit 1
+fi
+
 # TODO(leon): Do we want to validate ssh-key type (e.g. rsa / ed25519 / ..)?
 case "$PUBLIC_KEY" in
 'ssh-'*)
